@@ -500,6 +500,7 @@ static rt_err_t _interface_handler(ufunction_t func, ureq_t setup)
  *
  * @return RT_EOK on successful.
  */
+static rt_uint8_t hid_rec_buffer[HID_RX_BUFSIZE];
 static rt_err_t _function_enable(ufunction_t func)
 {
     struct hid_s *data;
@@ -512,7 +513,10 @@ static rt_err_t _function_enable(ufunction_t func)
 //
 //    _vcom_reset_state(func);
 //
-    data->ep_out->buffer            = rt_malloc(HID_RX_BUFSIZE);
+    if(data->ep_out->buffer == RT_NULL)
+    {
+        data->ep_out->buffer        = hid_rec_buffer;
+    }
     data->ep_out->request.buffer    = data->ep_out->buffer;
     data->ep_out->request.size      = EP_MAXPACKET(data->ep_out);
     data->ep_out->request.req_type  = UIO_REQUEST_READ_BEST;
@@ -539,11 +543,11 @@ static rt_err_t _function_disable(ufunction_t func)
 
     RT_DEBUG_LOG(RT_DEBUG_USB, ("hid function disable\n"));
 
-    if(data->ep_out->buffer != RT_NULL)
-    {
-        rt_free(data->ep_out->buffer);
-        data->ep_out->buffer = RT_NULL;
-    }
+//    if(data->ep_out->buffer != RT_NULL)
+//    {
+//        rt_free(data->ep_out->buffer);
+//        data->ep_out->buffer = RT_NULL;
+//    }
 
     return RT_EOK;
 }
